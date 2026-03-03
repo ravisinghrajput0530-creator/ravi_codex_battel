@@ -1,123 +1,99 @@
-const balanceEl = document.getElementById("balance");
-const incomeEl = document.getElementById("income");
-const expenseEl = document.getElementById("expense");
-const list = document.getElementById("list");
+let nameInput = document.getElementById("name");
+let heightInput = document.getElementById("height");
+let weightInput = document.getElementById("weight");
+let calculateBtn = document.getElementById("calculateBtn");
+let resetBtn = document.getElementById("resetBtn");
+let resultDiv = document.getElementById("result");
+let historyList = document.getElementById("history");
 
-const modal = document.getElementById("modal");
-const openModal = document.getElementById("openModal");
-const closeModal = document.getElementById("closeModal");
 
-const form = document.getElementById("form");
-const text = document.getElementById("text");
-const amount = document.getElementById("amount");
-const search = document.getElementById("search");
+calculateBtn.addEventListener("click", function () {
 
-let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-let currentFilter = "all";
+    let name = nameInput.value.trim();
+    let height = heightInput.value.trim();
+    let weight = weightInput.value.trim();
 
-openModal.onclick = () => modal.classList.add("active");
-closeModal.onclick = () => modal.classList.remove("active");
-window.onclick = e => { if (e.target === modal) modal.classList.remove("active"); };
 
-// Filter buttons with event delegation
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("filter-tab")) {
-    document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
-    e.target.classList.add("active");
-    currentFilter = e.target.dataset.filter;
-    render();
-  }
+    if (name === "" || height === "" || weight === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    if (height <= 0 || weight <= 0) {
+        alert("Enter valid positive numbers");
+        return;
+    }
+
+    let heightInMeter = height / 100;
+    let bmi = weight / (heightInMeter * heightInMeter);
+    bmi = bmi.toFixed(2);
+
+    let category = "";
+    let colorClass = "";
+
+    if (bmi < 18.5) {
+        category = "Underweight";
+        colorClass = "underweight";
+    } 
+    else if (bmi < 25) {
+        category = "Normal Weight";
+        colorClass = "normal";
+    } 
+    else if (bmi < 30) {
+        category = "Overweight";
+        colorClass = "overweight";
+    } 
+    else {
+        category = "Obese";
+        colorClass = "obese";
+    }
+
+    resultDiv.innerHTML = `
+        ${name}, your BMI is ${bmi} <br>
+        Category: ${category}
+    `;
+
+    resultDiv.className = colorClass;
+
+    let data = {
+        name: name,
+        bmi: bmi,
+        category: category
+    };
+
+    let oldData = JSON.parse(localStorage.getItem("bmiHistory")) || [];
+
+    oldData.push(data);
+
+    localStorage.setItem("bmiHistory", JSON.stringify(oldData));
+
+    showHistory();
 });
 
-form.addEventListener("submit", function(e){
-  e.preventDefault();
+resetBtn.addEventListener("click", function () {
 
-  const type = document.querySelector('input[name="type"]:checked').value;
+    nameInput.value = "";
+    heightInput.value = "";
+    weightInput.value = "";
 
-  const category = document.getElementById("category").value;
-
-  const transaction = {
-    id: Date.now(),
-    text: text.value,
-    amount: +amount.value,
-    type: type,
-    category: category,
-    date: new Date().toLocaleDateString()
-  };
-
-  transactions.push(transaction);
-  localStorage.setItem("transactions", JSON.stringify(transactions));
-
-  form.reset();
-  modal.classList.remove("active");
-  init();
+    resultDiv.innerHTML = "";
+    resultDiv.className = "";
 });
 
-function removeTransaction(id){
-  transactions = transactions.filter(t => t.id !== id);
-  localStorage.setItem("transactions", JSON.stringify(transactions));
-  init();
-}
+function showHistory() {
 
-function updateValues(){
-  let income = 0;
-  let expense = 0;
+    historyList.innerHTML = "";
 
-  transactions.forEach(t => {
-    if(t.type === "income") income += t.amount;
-    else expense += t.amount;
-  });
+    let stored = JSON.parse(localStorage.getItem("bmiHistory")) || [];
 
-  balanceEl.innerText = "$" + (income - expense).toFixed(2);
-  incomeEl.innerText = "$" + income.toFixed(2);
-  expenseEl.innerText = "$" + expense.toFixed(2);
-}
+    stored.forEach(function(item) {
 
-function getCategoryIcon(category) {
-  const icons = {
-    salary: "💰",
-    food: "🍔",
-    shopping: "🛍️",
-    entertainment: "🎬",
-    utilities: "💡",
-    other: "📌"
-  };
-  return icons[category] || "📌";
-}
+        let li = document.createElement("li");
 
-function render(){
-  list.innerHTML = "";
-  const query = search.value.toLowerCase();
+        li.textContent = item.name + " - BMI: " + item.bmi + " (" + item.category + ")";
 
-  transactions
-    .filter(t => {
-      const matchesQuery = t.text.toLowerCase().includes(query);
-      const matchesFilter = currentFilter === "all" || t.type === currentFilter;
-      return matchesQuery && matchesFilter;
-    })
-    .forEach(t => {
-      const li = document.createElement("li");
-      const icon = getCategoryIcon(t.category);
-      li.className = "transaction-item";
-      li.innerHTML = `
-        <div class="transaction-icon">${icon}</div>
-        <div class="transaction-info">
-          <div class="transaction-title">${t.text}</div>
-          <div class="transaction-category">${t.category}</div>
-          <div class="transaction-date">${t.date || new Date().toLocaleDateString()}</div>
-        </div>
-        <div class="transaction-amount ${t.type}">${t.type === "income" ? "+" : "-"}$${t.amount.toFixed(2)}</div>
-        <button class="delete-btn" onclick="removeTransaction(${t.id})">🗑️</button>
-      `;
-      list.appendChild(li);
+        historyList.appendChild(li);
     });
 }
 
-search.addEventListener("input", render);
-
-function init(){
-  render();
-  updateValues();
-}
-
-init();
+showHistory();
