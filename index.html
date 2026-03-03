@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FinanceFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1 class="logo">💎 FINANCEFLOW</h1>
+
+  <div class="balance-box">
+    <p>Total Balance</p>
+    <h2 id="balance">$0.00</h2>
+  </div>
+
+  <div class="stats">
+    <div>
+      <p>Income</p>
+      <h3 id="income">$0.00</h3>
+    </div>
+    <div>
+      <p>Expense</p>
+      <h3 id="expense">$0.00</h3>
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search transactions...">
+    <button id="openModal">+ Add Transaction</button>
+  </div>
+
+  <div class="search-section">
+    <h3>SEARCH TRANSACTIONS</h3>
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">ALL</button>
+      <button class="filter-tab" data-filter="income">ITEMS</button>
+      <button class="filter-tab" data-filter="expense">EXPENSES</button>
+    </div>
+  </div>
+
+  <div class="recent-section">
+    <h3>RECENT TRANSACTIONS</h3>
+    <ul id="list" class="transaction-list"></ul>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h2>NEW TRANSACTION</h2>
+      <button id="closeModal">×</button>
+    </div>
+
+    <form id="form">
+
+      <label>Description</label>
+      <input type="text" id="text" required>
+
+      <label>Amount ($)</label>
+      <input type="number" id="amount" required>
+
+      <label>Type</label>
+      <div class="toggle">
+        <input type="radio" name="type" value="income" id="incomeRadio" checked>
+        <label for="incomeRadio">INCOME</label>
+
+        <input type="radio" name="type" value="expense" id="expenseRadio">
+        <label for="expenseRadio">EXPENSE</label>
+      </div>
+
+      <label>Category</label>
+      <select id="category">
+        <option value="salary">Salary</option>
+        <option value="food">Food</option>
+        <option value="shopping">Shopping</option>
+        <option value="entertainment">Entertainment</option>
+        <option value="utilities">Utilities</option>
+        <option value="other">Other</option>
+      </select>
+
+      <button type="submit" class="save-btn">SAVE TRANSACTION</button>
+
+    </form>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
